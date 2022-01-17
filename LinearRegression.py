@@ -1,10 +1,39 @@
 import pandas as pd
 from ID_DEFINE import *
+import matplotlib.pyplot as plt
+import numpy as np
+
 def OpenDataFile(filename):
     Data = pd.read_csv(filename)
     x = Data['x'].values
     y = Data['y'].values
+    return x,y
 
 if __name__ == '__main__':
+    learningRate = 0.0001
     filename = linearRegressionDataDir+'data.csv'
-    OpenDataFile(filename)
+    xValue,yValue = OpenDataFile(filename)
+    plt.plot(xValue,yValue,'b.')
+    a = 0
+    b = 0
+    delta = 1000
+    maxDelta = 0.001
+    iteration = 0
+    while delta > maxDelta:
+        for i,x in enumerate(xValue):
+            y = a*x+b
+            delta = yValue[i] - y
+            gradienta = delta*x
+            gradientb = delta
+            a += learningRate * gradienta
+            b += learningRate * gradientb
+            print("y=",y)
+            print("delta=",delta)
+            if delta <= maxDelta:
+                break
+            iteration += 1
+            print("iteration=",iteration)
+    X = np.linspace(0,10,100)
+    Y = a*X+b
+    plt.plot(X,Y,'r-')
+    plt.show()
