@@ -33,6 +33,7 @@ if __name__ == '__main__':
                 break
             iteration += 1
             print("iteration=",iteration)
+
     X = np.linspace(0,10,100)
     Y = a*X+b
     plt.plot(X,Y,'r-')
