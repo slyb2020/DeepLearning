@@ -1,0 +1,55 @@
+import pandas as pd
+from ID_DEFINE import *
+import matplotlib.pyplot as plt
+import numpy as np
+
+def OpenDataFile(fileName):
+    Data = pd.read_csv(fileName)
+    xValue = Data['x'].values
+    yValue = Data['y'].values
+    return xValue, yValue
+
+
+class MyLinearRegression():
+    def __init__(self,learningRate=0.0001, maxLoss=1e-6, epoch=10000):
+        self.learningRate = learningRate
+        self.maxLoss = maxLoss
+        self.epoch = epoch
+        self.a = 0
+        self.b = 0
+
+    def predict(self, x):
+        y = self.a * x + self.b
+        return y
+
+    def Loss(self, y, label):
+        loss = (label - y) * (label - y)
+        return loss
+
+    def fit(self, xVectors ,labelVectors):
+        for i in range(self.epoch):
+            for j, x in enumerate(xVectors):
+                y = self.predict(x)
+                error = labelVectors[j] - y
+                loss = self.Loss(y,labelVectors[j])
+                if loss <= self.maxLoss:
+                    return loss, i
+                else:
+                    gradienta = x * error
+                    gradientb = error
+                    self.a += self.learningRate * gradienta
+                    self.b += self.learningRate * gradientb
+        return loss, self.epoch
+
+
+if __name__ == '__main__':
+    filename = linearRegressionDataDir + 'data.csv'
+    xValue, yValue = OpenDataFile(filename)
+    plt.plot(xValue, yValue, 'b.')
+    myLinearRegression = MyLinearRegression()
+    loss,epoch = myLinearRegression.fit(xValue,yValue)
+    print("loss,epoch=",loss,epoch)
+    X = np.linspace(0, 10, 100)
+    Y = myLinearRegression.predict(X)
+    plt.plot(X, Y, 'r-')
+    plt.show()
