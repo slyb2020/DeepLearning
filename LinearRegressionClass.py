@@ -20,9 +20,7 @@ class MyLinearRegression():
         self.bias = 0.0
 
     def predict(self, x):
-        if xVectors.shape[1] != self.dimension:
-            raise ValueError("输入数据的维数不对！")
-        y = np.dot(x,self.omega)+self.bias
+        y = np.dot(x,self.omega)+self.bias    #numpy数组点乘不是矩阵点乘，self.omega不必是列向量
         return y
 
     def Loss(self, y, label):
