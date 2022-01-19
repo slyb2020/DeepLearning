@@ -21,7 +21,7 @@ def OpenDataFile(fileName):
 
 
 class LinearRegression2D:
-    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, max_epochs=100000,regularization=False):
+    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, max_epochs=100000, regularization=False):
         self.dimension = dimension
         self.learningRate = learningRate
         self.threshold = threshold
@@ -29,18 +29,20 @@ class LinearRegression2D:
         self.regularization = regularization
         self.omega = np.array([0.0] * self.dimension)
         self.bias = 0.0
+        self.minX = None
+        self.rangeX = None
 
-    def Regularization(self,inputX,labels):
+    def Regularization(self, inputX, labels):
         self.minX = inputX.min(0)
         maxX = inputX.max(0)
         self.rangeX = maxX - self.minX
-        print("minX=",self.minX)
-        inputX = (inputX-self.minX)/self.rangeX
-        return inputX,labels
+        print("minX=", self.minX)
+        inputX = (inputX - self.minX) / self.rangeX
+        return inputX, labels
 
     def UnRegularization(self):
-        self.bias = self.bias-np.dot(self.omega*self.minX/self.rangeX,np.array([1]*self.dimension))
-        self.omega = self.omega/self.rangeX
+        self.bias = self.bias - np.dot(self.omega * self.minX / self.rangeX, np.array([1] * self.dimension))
+        self.omega = self.omega / self.rangeX
 
     def Predict(self, x):
         y = np.dot(x, self.omega) + self.bias
@@ -53,7 +55,7 @@ class LinearRegression2D:
 
     def Fit(self, inputX, labels):
         if self.regularization:
-            inputX,labels = self.Regularization(inputX,labels)
+            inputX, labels = self.Regularization(inputX, labels)
         for i in range(self.max_epochs):
             for j, x in enumerate(inputX):
                 y = self.Predict(x)
