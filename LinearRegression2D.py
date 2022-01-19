@@ -5,9 +5,10 @@
 # 针对data_Regression_unregular.csv中的数据，如果不使用归一化处理，learningRate需要设置为0.00001，而且还需要经过2915个epoch的迭代
 # 才能得到一个比较准确的结果；如果使用归一化处理，则learningRate可以简单的设置为1，只需要1个epoch就能得到较为理想的结果.
 # 可见归一化处理对于提高线性回归收敛速度具有非常显著的效果！
+# 20220119 20:13开始在ASUS上增加miniBatch功能
 import numpy as np
 import pandas as pd
-
+from BatchGenerator import BatchGenerator
 from ID_DEFINE import *
 
 
@@ -21,12 +22,13 @@ def OpenDataFile(fileName):
 
 
 class LinearRegression2D:
-    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, max_epochs=100000, regularization=False):
+    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, maxEpochs=100000, miniBatchSize=5, regularization=False):
         self.dimension = dimension
         self.learningRate = learningRate
         self.threshold = threshold
-        self.max_epochs = max_epochs
+        self.maxEpochs = maxEpochs
         self.regularization = regularization
+        self.miniBatchSize = miniBatchSize
         self.omega = np.array([0.0] * self.dimension)
         self.bias = 0.0
         self.minX = None
@@ -36,7 +38,6 @@ class LinearRegression2D:
         self.minX = inputX.min(0)
         maxX = inputX.max(0)
         self.rangeX = maxX - self.minX
-        print("minX=", self.minX)
         inputX = (inputX - self.minX) / self.rangeX
         return inputX, labels
 
@@ -51,25 +52,28 @@ class LinearRegression2D:
     def Loss(self, y, labels):
         loss = labels - y
         loss = loss * loss
-        return loss
+        return np.mean(loss)
 
     def Fit(self, inputX, labels):
         if self.regularization:
             inputX, labels = self.Regularization(inputX, labels)
-        for i in range(self.max_epochs):
-            for j, x in enumerate(inputX):
-                y = self.Predict(x)
-                error = labels[j] - y
-                loss = self.Loss(y, labels[j])
+        batchGenerator = BatchGenerator([inputX,labels],self.miniBatchSize,shuffle=True)
+        for i in range(self.maxEpochs):
+            for xBatch, labelBatch in batchGenerator:
+                y = self.Predict(xBatch)
+                error = (labelBatch - y).reshape(-1,1)
+                loss = self.Loss(y, labelBatch)
                 if loss <= self.threshold:
                     if self.regularization:
                         self.UnRegularization()
                     return loss, i
-                self.omega += self.learningRate * x * error
-                self.bias += self.learningRate * error
+                gradientOmega = np.mean(xBatch * error,axis=0)
+                gradientBias = np.mean(error)
+                self.omega += self.learningRate * gradientOmega
+                self.bias += self.learningRate * gradientBias
         if self.regularization:
             self.UnRegularization()
-        return loss, self.max_epochs
+        return loss, self.maxEpochs
 
 
 if __name__ == '__main__':
