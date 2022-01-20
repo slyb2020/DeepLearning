@@ -6,6 +6,7 @@
 # 才能得到一个比较准确的结果；如果使用归一化处理，则learningRate可以简单的设置为1，只需要1个epoch就能得到较为理想的结果.
 # 可见归一化处理对于提高线性回归收敛速度具有非常显著的效果！
 # 20220119 20:13开始在ASUS上增加miniBatch功能
+# 20220120 22:05创建Dev分支
 import numpy as np
 import pandas as pd
 from BatchGenerator import BatchGenerator
