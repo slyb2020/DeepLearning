@@ -7,6 +7,7 @@
 # 可见归一化处理对于提高线性回归收敛速度具有非常显著的效果！
 # 20220119 20:13开始在ASUS上增加miniBatch功能
 # 20220120 22:05创建Dev分支
+# 20220120 22:38合并Dev分支
 import numpy as np
 import pandas as pd
 from BatchGenerator import BatchGenerator
