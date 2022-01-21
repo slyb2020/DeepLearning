@@ -31,9 +31,11 @@ def BatchGenerator(all_data, batch_size, shuffle=True):
         # 重新组织数据
         all_data = [d[p] for d in all_data]
     batch_count = 0
+    epoch = 0
     while True:
         # 数据一轮循环(epoch)完成，打乱一次顺序
         if batch_count * batch_size + batch_size > data_size:
+            epoch += 1
             batch_count = 0
             if shuffle:
                 p = np.random.permutation(data_size)
@@ -41,7 +43,7 @@ def BatchGenerator(all_data, batch_size, shuffle=True):
         start = batch_count * batch_size
         end = start + batch_size
         batch_count += 1
-        yield [d[start: end] for d in all_data]
+        yield [d[start: end] for d in all_data],epoch
 
 
 if __name__ == '__main__':

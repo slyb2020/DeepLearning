@@ -1,15 +1,4 @@
-# 当使用未归一化数据时，由于输入数据没有归一化处理，所以学习率只能取得非常小，在取0.000016时，需要迭代1564个epoch才能得到较好的解。
-# 当使用归一化数据时，由于输入数据有归一化处理，所以学习率可以较大，在取1时，甚至在第0个epoch中即可求得非常好的解。
-# 可见归一化对于缩短训练时间的效果非常显著
-# 20220119 11:44在ZenBook上增加归一化处理功能
-# 针对data_Regression_unregular.csv中的数据，如果不使用归一化处理，learningRate需要设置为0.00001，而且还需要经过2915个epoch的迭代
-# 才能得到一个比较准确的结果；如果使用归一化处理，则learningRate可以简单的设置为1，只需要1个epoch就能得到较为理想的结果.
-# 可见归一化处理对于提高线性回归收敛速度具有非常显著的效果！
-# 20220119 20:13开始在ASUS上增加miniBatch功能
-# 20220120 22:05创建Dev分支
-# 20220120 22:38合并Dev分支
-# 20220121 10:44创建Dev分支，开始动量梯度下降编程
-# 20220121 11:13把损失函数移到类的外面
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from BatchGenerator import BatchGenerator
@@ -21,8 +10,9 @@ def OpenDataFile(fileName):
     x0 = Data['x0'].values
     x1 = Data['x1'].values
     xValues = np.stack((x0, x1), axis=1)
-    labels = Data['y2'].values
+    labels = Data['y'].values
     return xValues, labels
+
 
 def Loss(y, labels):
     loss = labels - y
@@ -30,9 +20,14 @@ def Loss(y, labels):
     return np.mean(loss)
 
 
-class LinearRegression2D:
-    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, maxEpochs=100000, miniBatchSize=5, momentum=0.9,
-                 regularization=False, LOSS=Loss):
+def Activator(vectors):
+    vectors = np.array([1 if d > 0 else 0 for d in vectors])
+    return vectors
+
+
+class Perceptron:
+    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, maxEpochs=10000, miniBatchSize=5, momentum=0.9,
+                 regularization=False, LOSS=Loss, Activator=Activator):
         self.dimension = dimension
         self.learningRate = learningRate
         self.threshold = threshold
@@ -41,6 +36,7 @@ class LinearRegression2D:
         self.miniBatchSize = miniBatchSize
         self.momentum = momentum
         self.Loss = LOSS
+        self.Activator = Activator
         self.omega = np.array([0.0] * self.dimension)
         self.bias = 0.0
         self.minX = None
@@ -59,7 +55,13 @@ class LinearRegression2D:
 
     def Predict(self, x):
         y = np.dot(x, self.omega) + self.bias
-        return y
+        return self.Activator(y)
+
+    def Boundary(self,inputX):
+        self.a = -self.omega[0]/self.omega[1]
+        self.b = -self.bias/self.omega[1]
+        outputY = self.a * inputX + self.b
+        return outputY
 
     def Fit(self, inputX, labels):
         gradientOmega = 0
@@ -85,11 +87,22 @@ class LinearRegression2D:
 
 
 if __name__ == '__main__':
-    filename = linearRegressionDataDir + 'data_Regression_unregular.csv'
-    # filename = linearRegressionDataDir + 'data_Regression_regular.csv'
+    # filename = linearClassificationDataDir + 'class_05_80.csv'
+    filename = linearClassificationDataDir + 'admissionData.csv'
     xVectors, labels = OpenDataFile(filename)
-    myLinearRegression2D = LinearRegression2D(regularization=True)
-    loss, epoch = myLinearRegression2D.Fit(xVectors, labels)
+    myPerceptron = Perceptron(regularization=True, miniBatchSize=100)
+    loss, epoch = myPerceptron.Fit(xVectors, labels)
     print("loss,epoch=", loss, epoch)
-    print("omega=", myLinearRegression2D.omega)
-    print("bias=", myLinearRegression2D.bias)
+    print("omega=", myPerceptron.omega)
+    print("bias=", myPerceptron.bias)
+    inputX = np.linspace(0,100,500)
+    outputYY = myPerceptron.Boundary(inputX)
+    plt.scatter(xVectors[:,0],xVectors[:,1])
+    for i,vector in enumerate(xVectors):
+        if labels[i] == 0:
+            plt.plot(vector[0],vector[1],'r.')
+        else:
+            plt.plot(vector[0],vector[1],'b*')
+    plt.plot(inputX,outputYY,'r-')
+    plt.show()
+    print("a,b=",myPerceptron.a,myPerceptron.b)
