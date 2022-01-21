@@ -8,6 +8,7 @@
 # 20220119 20:13开始在ASUS上增加miniBatch功能
 # 20220120 22:05创建Dev分支
 # 20220120 22:38合并Dev分支
+# 20220121 10:44创建Dev分支，开始动量梯度下降编程
 import numpy as np
 import pandas as pd
 from BatchGenerator import BatchGenerator
@@ -24,13 +25,14 @@ def OpenDataFile(fileName):
 
 
 class LinearRegression2D:
-    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, maxEpochs=100000, miniBatchSize=5, regularization=False):
+    def __init__(self, dimension=2, learningRate=1, threshold=1e-10, maxEpochs=100000, miniBatchSize=5, momentum=0.9, regularization=False):
         self.dimension = dimension
         self.learningRate = learningRate
         self.threshold = threshold
         self.maxEpochs = maxEpochs
         self.regularization = regularization
         self.miniBatchSize = miniBatchSize
+        self.momentum = momentum
         self.omega = np.array([0.0] * self.dimension)
         self.bias = 0.0
         self.minX = None
@@ -57,6 +59,8 @@ class LinearRegression2D:
         return np.mean(loss)
 
     def Fit(self, inputX, labels):
+        gradientOmega = 0
+        gradientBias = 0
         if self.regularization:
             inputX, labels = self.Regularization(inputX, labels)
         batchGenerator = BatchGenerator([inputX,labels],self.miniBatchSize,shuffle=True)
@@ -69,8 +73,8 @@ class LinearRegression2D:
                     if self.regularization:
                         self.UnRegularization()
                     return loss, i
-                gradientOmega = np.mean(xBatch * error,axis=0)
-                gradientBias = np.mean(error)
+                gradientOmega = self.momentum * gradientOmega + np.mean(xBatch * error,axis=0)
+                gradientBias = self.momentum * gradientBias + np.mean(error)
                 self.omega += self.learningRate * gradientOmega
                 self.bias += self.learningRate * gradientBias
         if self.regularization:
