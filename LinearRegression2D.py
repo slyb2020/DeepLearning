@@ -10,6 +10,7 @@
 # 20220120 22:38合并Dev分支
 # 20220121 10:44创建Dev分支，开始动量梯度下降编程
 # 20220121 11:13把损失函数移到类的外面
+
 import numpy as np
 import pandas as pd
 from BatchGenerator import BatchGenerator
