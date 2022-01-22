@@ -30,3 +30,15 @@ d = np.sqrt(c)
 print("d=",d)
 e = np.mean(d)
 print("e=",e)
+
+depth = 5
+for i in range(depth-1,-1,-1):
+    print("i=",i)
+
+depth = 5
+for j in range(0, depth)[::-1]:
+    print("j=", j)
+
+a = [0,1,2,3]
+for k in a[-1::-1]:
+    print("k=",k)
