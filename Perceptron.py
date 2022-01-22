@@ -20,9 +20,8 @@ def Loss(y, labels):
     return np.mean(loss)
 
 
-def Activator(vectors):
-    vectors = np.array([1 if d > 0 else 0 for d in vectors])
-    return vectors
+def Activator(x):
+    return 1 if x > 0 else 0
 
 
 class Perceptron:
@@ -36,7 +35,7 @@ class Perceptron:
         self.miniBatchSize = miniBatchSize
         self.momentum = momentum
         self.Loss = LOSS
-        self.Activator = Activator
+        self.Activator = np.vectorize(Activator)  # numpy的vectorize函数可以将目标函数适量话。这个函数非常有用一定要记住、用熟
         self.omega = np.array([0.0] * self.dimension)
         self.bias = 0.0
         self.minX = None
@@ -57,9 +56,9 @@ class Perceptron:
         y = np.dot(x, self.omega) + self.bias
         return self.Activator(y)
 
-    def Boundary(self,inputX):
-        self.a = -self.omega[0]/self.omega[1]
-        self.b = -self.bias/self.omega[1]
+    def Boundary(self, inputX):
+        self.a = -self.omega[0] / self.omega[1]
+        self.b = -self.bias / self.omega[1]
         outputY = self.a * inputX + self.b
         return outputY
 
@@ -69,7 +68,7 @@ class Perceptron:
         if self.regularization:
             inputX, labels = self.Regularization(inputX, labels)
         batchGenerator = BatchGenerator([inputX, labels], self.miniBatchSize, shuffle=True)
-        for [xBatch, labelBatch],epoch in batchGenerator:
+        for [xBatch, labelBatch], epoch in batchGenerator:
             y = self.Predict(xBatch)
             error = (labelBatch - y).reshape(-1, 1)
             loss = self.Loss(y, labelBatch)
@@ -95,14 +94,14 @@ if __name__ == '__main__':
     print("loss,epoch=", loss, epoch)
     print("omega=", myPerceptron.omega)
     print("bias=", myPerceptron.bias)
-    inputX = np.linspace(0,100,500)
+    inputX = np.linspace(0, 100, 500)
     outputYY = myPerceptron.Boundary(inputX)
-    plt.scatter(xVectors[:,0],xVectors[:,1])
-    for i,vector in enumerate(xVectors):
+    plt.scatter(xVectors[:, 0], xVectors[:, 1])
+    for i, vector in enumerate(xVectors):
         if labels[i] == 0:
-            plt.plot(vector[0],vector[1],'r.')
+            plt.plot(vector[0], vector[1], 'r.')
         else:
-            plt.plot(vector[0],vector[1],'b*')
-    plt.plot(inputX,outputYY,'r-')
+            plt.plot(vector[0], vector[1], 'b*')
+    plt.plot(inputX, outputYY, 'r-')
     plt.show()
-    print("a,b=",myPerceptron.a,myPerceptron.b)
+    print("a,b=", myPerceptron.a, myPerceptron.b)
