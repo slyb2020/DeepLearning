@@ -142,12 +142,13 @@ class MultyLayerNeuralNetwork:
 
 
 if __name__ == '__main__':
+    np.random.seed(42) #观察发现这个随机种子很重要，进而推论网络初值非常重要，初值不好的话，很有可能网络参数收敛不到最优值!
     filename = nolinearRegressionDataDir + "数据集.xls"
     xdataOriginal = pd.read_excel(filename, sheet_name="Single_Nonlinear", usecols='D')
     xData = np.array(xdataOriginal)
     labelOriginal = pd.read_excel(filename, sheet_name="Single_Nonlinear", usecols='E')
     labels = np.array(labelOriginal)
-    myMultyLayerNeuralNetwork = MultyLayerNeuralNetwork(inputShape=1, shape=[16, 1], activators=['relu', 'identity'],
+    myMultyLayerNeuralNetwork = MultyLayerNeuralNetwork(inputShape=1, shape=[2, 1], activators=['relu', 'identity'],
                                                         learningRate=0.15, threshold=0.001,)
     myMultyLayerNeuralNetwork.Fit(xData, labels)
     min = xData.min()
