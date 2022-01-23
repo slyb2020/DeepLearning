@@ -22,3 +22,8 @@ print("c=",c)
 
 # axis=0 上下摞
 # axis=1 左右摞
+
+a = np.array([1,2,3])
+b = np.array([4,5,6])
+c = np.vstack((a,b))
+print("c=",c)
