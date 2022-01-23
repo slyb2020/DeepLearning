@@ -20,11 +20,10 @@ class NoLinearRegressionNet(nn.Module):
     def __init__(self, in_dim):
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(in_dim, 8),
+            nn.Linear(in_dim, 5),
             nn.ReLU(),
-            nn.Linear(8, 1)
+            nn.Linear(5, 1)
         )
-
     def forward(self, x):
         output = self.fc(x)
         return output
@@ -42,11 +41,13 @@ if __name__ == "__main__":
     num_epoches = 10
     train_loader = BatchGenerator([xValues, labels], batch_size, shuffle=True)
     for [xBatch, labelBatch], epoch in train_loader:
+        xBatch = torch.tensor(xBatch)
+        labelBatch = torch.tensor(labelBatch)
         train_accuracy_total = 0
         train_correct = 0
         train_loss_sum = 0
         model.train()
-        xBatch = xBatch.to(device) # 这句话还不好使，因为xBatch还不是tensor型变量只是一个numpy.array数组
+        xBatch = xBatch.to(device) # 这句话现在好使了，因为xBatch已经是tensor型变量了
         labelBatch = labelBatch.to(device)
         outputs = model(xBatch)
         loss = criterion(outputs,labelBatch)
