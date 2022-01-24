@@ -104,3 +104,13 @@ print("d=",d)
 d.backward()
 print("a.grad=",a.grad)
 print("b.grad=",b.grad)
+
+
+a = torch.rand(2,3,requires_grad=True)
+b = torch.rand(3,1,requires_grad=True)
+c = torch.matmul(a,b)
+print("c=",c)
+c.backward(torch.rand(2,1)) #这时候就可以backward了，因为backward方法带了参数，参数的维度和c的维度一致，这样每个元素都是一个标量。
+# 同时也说明backward方法不带参数时，默认的参数就是一个标量tensor(1.0)
+print("aa.grad=",a.grad)
+print("bb.grad=",b.grad)
