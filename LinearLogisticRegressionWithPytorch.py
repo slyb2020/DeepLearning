@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 import pandas as pd
-from  torch import nn
+from torch import nn
 from ID_DEFINE import *
 from torch import optim
 from torch.distributions import MultivariateNormal
@@ -51,6 +51,7 @@ def MakeDataFile(filename):
     dataFrame = pd.DataFrame(dataArray, columns=['x0', 'x1', 'y'])
     dataFrame.to_csv(filename, mode='w', index=None, encoding='utf_8_sig')
 
+
 class LogisticRegression(nn.Module):
     def __init__(self, inDimension):
         super().__init__()
@@ -68,8 +69,8 @@ if __name__ == "__main__":
     outDimension = 1
     maxEpoches = 10000
     batchSize = 100
-    filename = linearClassificationDataDir + "class_05_80.csv"
-    # filename = linearClassificationDataDir + "LinearLogisticRegression.csv"
+    # filename = linearClassificationDataDir + "class_05_80.csv"
+    filename = linearClassificationDataDir + "LinearLogisticRegression.csv"
     # MakeDataFile(filename)
     xVectors, labels = OpenDataFile(filename)
     xTensors = torch.tensor(xVectors, dtype=torch.float)
@@ -92,16 +93,16 @@ if __name__ == "__main__":
     #
     # print("weight=",myLogisticRegression.linear.weight[0,0].item())
 
-    w = -myLogisticRegression.linear.weight[0,0] / myLogisticRegression.linear.weight[0,1]
-    bias = -myLogisticRegression.linear.bias[0] / myLogisticRegression.linear.weight[0,1]
+    w = -myLogisticRegression.linear.weight[0, 0] / myLogisticRegression.linear.weight[0, 1]
+    bias = -myLogisticRegression.linear.bias[0] / myLogisticRegression.linear.weight[0, 1]
     # print("w,bias=", w, bias)
-    for i,Tensor in enumerate(xTensors):
-        if labelTensors[i,0] == 1:
+    for i, Tensor in enumerate(xTensors):
+        if labelTensors[i, 0] == 1:
             plt.scatter(Tensor[0], Tensor[1], c='b', marker='*')
         else:
             plt.scatter(Tensor[0], Tensor[1], c='g', marker='.')
 
-    x = torch.linspace(xTensors.min(),xTensors.max(),100)
+    x = torch.linspace(xTensors.min(), xTensors.max(), 100)
     y = x * w + bias
     plt.plot(x.detach().numpy(), y.detach().numpy(), 'r-')
     plt.show()
