@@ -51,10 +51,10 @@ if __name__ == "__main__":
             break
         if exEpoch != epoch:
             exEpoch = epoch
-            if(train_loss_sum<=threshold):
+            if train_loss_sum <= threshold:
                 break
             train_loss_sum = 0
-            print("epoch=",epoch)
+            print("epoch=", epoch)
         xBatch = torch.tensor(xBatch.reshape(-1, 1), dtype=torch.float)
         # print(xBatch)
         labelBatch = torch.tensor(labelBatch.reshape(-1, 1), dtype=torch.float)
@@ -72,4 +72,4 @@ if __name__ == "__main__":
         # train_accuracy_total += labelBatch.size(0)
         # train_correct += (predicts == labelBatch).cpu().sum().item()
     print("finish training")
-    print('epoch %d,loss %.5f'%(epoch,train_loss_sum/batchSize))
+    print('epoch %d,loss %.5f' % (epoch, train_loss_sum / batchSize))
