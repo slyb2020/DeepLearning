@@ -7,6 +7,7 @@ from torchvision.datasets import MNIST
 import matplotlib.pyplot as plt
 from torchvision import transforms
 from torch.utils.data import DataLoader
+from ID_DEFINE import *
 
 
 # %matplotlib inline
@@ -51,38 +52,46 @@ if __name__ == "__main__":
     mnistVal = MNIST(root="D:/WorkSpace/DataSet", train=False, download=True, transform=trans)
     trainLoader = DataLoader(mnistTrain, batch_size=16, shuffle=True, num_workers=2)
     valLoader = DataLoader(mnistVal, batch_size=16, shuffle=True, num_workers=2)
+    modelFileName = modelDir + 'MlP.model'
+    isExists = os.path.exists(modelFileName)
+    if isExists:
+        myMLP = torch.load(modelFileName)
+        myMLP.eval()
 
-    myMLP = MLP()
-    print(myMLP)
-    Optimizer = optim.SGD(myMLP.parameters(), lr=1e-2, momentum=0.9)
-    Loss = nn.CrossEntropyLoss()
-    minLoss = 0
-    ACC = {'train': [], "val": []}
-    LOSS = {'train': [], 'val': []}
-    for epoch in tqdm(range(10)):
-        myMLP.eval()  #设置为验证模式
-        numberVerify, denumberVerify, lossTr = 0.0, 0.0, 0.0
-        with torch.no_grad():
-            for data, target, in valLoader:
+    else:
+        myMLP = MLP()
+        print(myMLP)
+        Optimizer = optim.SGD(myMLP.parameters(), lr=1e-2, momentum=0.9)
+        Loss = nn.CrossEntropyLoss()
+        minLoss = 0
+        ACC = {'train': [], "val": []}
+        LOSS = {'train': [], 'val': []}
+        for epoch in tqdm(range(10)):
+            myMLP.eval()  # 设置为验证模式
+            numberVerify, denumberVerify, lossTr = 0.0, 0.0, 0.0
+            with torch.no_grad():
+                for data, target, in valLoader:
+                    output = myMLP(data)
+                    loss = Loss(output, target)
+                    lossTr += loss
+                    number, denumber = accuracy(output, target)
+                    numberVerify += number
+                    denumberVerify += denumber
+            myMLP.train()
+            numberTrain, denumberTrain, lossVerify = 0., 0., 0.,
+            for data, target in trainLoader:
+                Optimizer.zero_grad()  # 梯度初始化为0
                 output = myMLP(data)
                 loss = Loss(output, target)
-                lossTr += loss
+                lossVerify += loss
+                loss.backward()
+                Optimizer.step()
                 number, denumber = accuracy(output, target)
-                numberVerify += number
-                denumberVerify += denumber
-        myMLP.train()
-        numberTrain, denumberTrain, lossVerify = 0., 0., 0.,
-        for data, target in trainLoader:
-            Optimizer.zero_grad()  # 梯度初始化为0
-            output = myMLP(data)
-            loss = Loss(output, target)
-            lossVerify += loss
-            loss.backward()
-            Optimizer.step()
-            number, denumber = accuracy(output, target)
-            numberTrain += number
-            denumberTrain += denumber
-        LOSS['train'].append(lossTr/len(trainLoader))
-        LOSS['val'].append(lossVerify / len(valLoader))
-        ACC['train'].append(numberTrain / denumberTrain)
-        ACC['val'].append(numberVerify / denumberVerify)
+                numberTrain += number
+                denumberTrain += denumber
+            LOSS['train'].append(lossTr / len(trainLoader))
+            LOSS['val'].append(lossVerify / len(valLoader))
+            ACC['train'].append(numberTrain / denumberTrain)
+            ACC['val'].append(numberVerify / denumberVerify)
+        print(LOSS, ACC)
+        torch.save(myMLP, modelDir + 'MLP.model')
