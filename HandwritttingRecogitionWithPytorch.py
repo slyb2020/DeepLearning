@@ -60,17 +60,29 @@ if __name__ == "__main__":
     ACC = {'train': [], "val": []}
     LOSS = {'train': [], 'val': []}
     for epoch in tqdm(range(10)):
-        # myMLP.eval()  #设置为验证模式
+        myMLP.eval()  #设置为验证模式
+        numberVerify, denumberVerify, lossTr = 0.0, 0.0, 0.0
+        with torch.no_grad():
+            for data, target, in valLoader:
+                output = myMLP(data)
+                loss = Loss(output, target)
+                lossTr += loss
+                number, denumber = accuracy(output, target)
+                numberVerify += number
+                denumberVerify += denumber
         myMLP.train()
-        numTr, denumerTr, lossSum = 0., 0., 0.,
+        numberTrain, denumberTrain, lossVerify = 0., 0., 0.,
         for data, target in trainLoader:
             Optimizer.zero_grad()  # 梯度初始化为0
             output = myMLP(data)
             loss = Loss(output, target)
-            lossSum += loss
+            lossVerify += loss
             loss.backward()
             Optimizer.step()
-            num, denum = accuracy(output, target)
-            numTr += num
-            denumerTr += denum
-        # LOSS['train'].append(loss)
+            number, denumber = accuracy(output, target)
+            numberTrain += number
+            denumberTrain += denumber
+        LOSS['train'].append(lossTr/len(trainLoader))
+        LOSS['val'].append(lossVerify / len(valLoader))
+        ACC['train'].append(numberTrain / denumberTrain)
+        ACC['val'].append(numberVerify / denumberVerify)
