@@ -55,10 +55,16 @@ if __name__ == "__main__":
     modelFileName = modelDir + 'MlP.model'
     isExists = os.path.exists(modelFileName)
     if isExists:
-        print("here")
         myMLP = torch.load(modelFileName)
         myMLP.eval()
-
+        correctNumberVerify, totalNumberVerify = 0.0, 0.0
+        with torch.no_grad():
+            for data, target, in valLoader:
+                output = myMLP(data)
+                correctNumber, totalNumber = accuracy(output, target)
+                correctNumberVerify += correctNumber
+                totalNumberVerify += totalNumber
+        print("Accuracy is ", (correctNumberVerify / totalNumberVerify).detach().numpy())
     else:
         myMLP = MLP()
         print(myMLP)
@@ -69,30 +75,36 @@ if __name__ == "__main__":
         LOSS = {'train': [], 'val': []}
         for epoch in tqdm(range(10)):
             myMLP.eval()  # 设置为验证模式
-            numberVerify, denumberVerify, lossTr = 0.0, 0.0, 0.0
+            correctNumberVerify, totalNumberVerify, lossVerify = 0.0, 0.0, 0.0
             with torch.no_grad():
                 for data, target, in valLoader:
                     output = myMLP(data)
                     loss = Loss(output, target)
-                    lossTr += loss
-                    number, denumber = accuracy(output, target)
-                    numberVerify += number
-                    denumberVerify += denumber
+                    lossVerify += loss
+                    correctnumber, totalNumber = accuracy(output, target)
+                    correctNumberVerify += correctnumber
+                    totalNumberVerify += totalNumber
+            print("Accuracy is ", (correctNumberVerify / totalNumberVerify).detach().numpy())
             myMLP.train()
-            numberTrain, denumberTrain, lossVerify = 0., 0., 0.,
+            correctNumberTrain, totalNumberTrain, lossTrain = 0., 0., 0.,
             for data, target in trainLoader:
                 Optimizer.zero_grad()  # 梯度初始化为0
                 output = myMLP(data)
                 loss = Loss(output, target)
-                lossVerify += loss
+                lossTrain += loss
                 loss.backward()
                 Optimizer.step()
-                number, denumber = accuracy(output, target)
-                numberTrain += number
-                denumberTrain += denumber
-            LOSS['train'].append(lossTr / len(trainLoader))
+                correctNumber, totalNumber = accuracy(output, target)
+                correctNumberTrain += correctNumber
+                totalNumberTrain += totalNumber
+            LOSS['train'].append(lossTrain / len(trainLoader))
+            ACC['train'].append(correctNumberTrain / totalNumberTrain)
             LOSS['val'].append(lossVerify / len(valLoader))
-            ACC['train'].append(numberTrain / denumberTrain)
-            ACC['val'].append(numberVerify / denumberVerify)
-        print(LOSS, ACC)
+            ACC['val'].append(correctNumberVerify / totalNumberVerify)
+        plt.plot(LOSS['train'])
+        plt.plot(LOSS['val'])
+        plt.show()
+        plt.plot(ACC['train'])
+        plt.plot(ACC['val'])
+        plt.show()
         torch.save(myMLP, modelDir + 'MLP.model')
