@@ -25,7 +25,7 @@ class MLP(nn.Module):
         super().__init__()
         self.inputLayer = nn.Sequential(nn.Linear(28 * 28, 256), nn.ReLU(), nn.Dropout(0.2))
         self.hiddenLayer = nn.Sequential(nn.Linear(256, 256), nn.ReLU(), nn.Dropout(0.2))
-        self.outputLayer = nn.Sequential(nn.Linear(256, 10))
+        self.outputLayer = nn.Sequential(nn.Linear(256, 10), nn.Softmax(dim=1))
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
@@ -55,6 +55,7 @@ if __name__ == "__main__":
     modelFileName = modelDir + 'MlP.model'
     isExists = os.path.exists(modelFileName)
     if isExists:
+        print("here")
         myMLP = torch.load(modelFileName)
         myMLP.eval()
 
