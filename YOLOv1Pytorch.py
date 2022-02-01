@@ -1,9 +1,15 @@
 # https://blog.csdn.net/weixin_41424926/article/details/105383064  对应的例程源代码
+from torch.utils.data import Dataset, DataLoader
+from torch import nn
 import xml.etree.ElementTree as ET
 import os
 import cv2
 from ID_DEFINE import *
+import numpy as np
+import torchvision.transforms as transforms
+import torch
 
+NUM_BBOX = 2
 CLASSES = ['person', 'bird', 'cat', 'cow', 'dog', 'horse', 'sheep',
            'aeroplane', 'bicycle', 'boat', 'bus', 'car', 'motorbike', 'train',
            'bottle', 'chair', 'dining table', 'potted plant', 'sofa', 'tvmonitor']
