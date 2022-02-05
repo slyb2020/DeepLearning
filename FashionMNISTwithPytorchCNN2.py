@@ -58,7 +58,7 @@ if __name__ == "__main__":
     # labelClasses = ("衬衫", "裤子", "套头衫", "连衣裙", "外套", "凉鞋", "衬衫", "运动鞋", "包", "靴子")
     labelClasses = (
         "T-shirt/top", "Trousers", "Pullover", "Dress", "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle Boot")
-    modelFileName = modelDir + 'FashionMNIST.model'
+    modelFileName = modelDir + 'FashionMNIST.pkl'
     isExists = os.path.exists(modelFileName)
     if isExists:
         myModel = torch.load(modelFileName)
@@ -116,6 +116,7 @@ if __name__ == "__main__":
             # print("Accuracy is ", (correctNumberVerify / totalNumberVerify).detach().numpy())
         print("Accuracy is ", (correctNumberVerify / totalNumberVerify).cpu().detach().numpy())
         print("Finish training")
-        torch.save(myModel, modelDir + 'FashionMNIST.model')
+        torch.save(myModel, modelDir + 'FashionMNIST.pkl')
+        torch.save(myModel.state_dict(), modelDir + 'myModel_parameter.pkl')
     for parameter in myModel.conv1.parameters():
         print(parameter.cpu().detach().numpy())

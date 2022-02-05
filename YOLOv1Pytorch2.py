@@ -22,7 +22,7 @@ from tqdm import tqdm  # python的进度条模块
 class YOLOv1_resnet(nn.Module):
     def __init__(self):
         super(YOLOv1_resnet, self).__init__()
-        resnet = tvmodel.resnet34(pretrained=True)  # 调用torchvision里的resnet34预训练模型
+        resnet = tvmodel.resnet101(pretrained=True)  # 调用torchvision里的resnet34预训练模型
         resnet_out_channel = resnet.fc.in_features  # 记录resnet全连接层之前的网络输出通道数，方便连入后续卷积网络中
         self.resnet = nn.Sequential(*list(resnet.children())[:-2])  # 去除resnet的最后两层
         # 以下是YOLOv1的最后四个卷积层
